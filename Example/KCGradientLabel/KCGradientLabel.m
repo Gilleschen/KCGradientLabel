@@ -11,6 +11,7 @@
 @end
 
 @implementation KCGradientLabel
+
 - (void)addLink
 {
     [self removeLink];
@@ -69,6 +70,12 @@
     
     [self addSubview:self.label];
     [self.layer addSublayer:self.gradientLayer];
+}
+
+- (CGSize)intrinsicContentSize
+{
+    [self.label sizeToFit];
+    return self.label.frame.size;
 }
 
 - (void)layoutSubviews

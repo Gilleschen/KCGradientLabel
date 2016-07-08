@@ -10,7 +10,7 @@
 #import "KCGradientLabel.h"
 
 @interface ViewController ()
-@property (nonatomic, weak) KCGradientLabel *label;
+@property (weak, nonatomic) IBOutlet KCGradientLabel *label;
 @end
 
 @implementation ViewController
@@ -19,11 +19,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    KCGradientLabel *label = [KCGradientLabel new];
-    label.numberOfLines = 0;
-    [self.view addSubview:label];
-    label.text = @"哈哈哈哈哈哈哈哈哈哈哈";
+    self.label.text = @"哈哈哈哈哈哈哈哈哈哈哈\n是附件是打飞机第三方收到";
 //    label.gradientColors = @[[UIColor blueColor], [UIColor orangeColor]];
+    self.label.numberOfLines = 0;
     
     NSMutableArray *colorsArray = [NSMutableArray array];
     for (NSInteger i = 0; i <= 360; i += 5) {
@@ -33,14 +31,9 @@
                                          alpha:1.0];
         [colorsArray addObject:color];
     }
-    label.gradientColors = colorsArray;
-    label.font = [UIFont systemFontOfSize:30];
-    label.gradientDirection = KCGradientLabelGradientDirectionTopLeftToBottomRight;
-    label.frame = CGRectMake(10, 50, self.view.frame.size.width, 30);
-    [label sizeToFit];
-    
-    self.label = label;
-    
+    self.label.gradientColors = colorsArray;
+    self.label.font = [UIFont systemFontOfSize:30];
+    self.label.gradientDirection = KCGradientLabelGradientDirectionTopLeftToBottomRight;
     
     
 }
@@ -49,7 +42,6 @@
 {
     
     self.label.animate = !self.label.isAnimate;
-    self.label.animationDuration += 1;
 }
 
 @end
