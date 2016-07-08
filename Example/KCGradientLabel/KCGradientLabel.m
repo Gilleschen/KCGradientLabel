@@ -7,10 +7,23 @@
 
 @property (nonatomic, strong) UILabel *label;
 
-
+@property (nonatomic, strong) CADisplayLink *link;
 @end
 
 @implementation KCGradientLabel
+- (void)addLink
+{
+    [self removeLink];
+    self.link = [CADisplayLink displayLinkWithTarget:self selector:@selector(performAnimation)];
+    self.link.frameInterval = self.animationDuration;
+    [self.link addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+}
+
+-(void)removeLink
+{
+    [self.link invalidate];
+    self.link = nil;
+}
 
 - (UILabel *)label
 {
@@ -52,6 +65,8 @@
 
 - (void)setup
 {
+    _animationDuration = 2;
+    
     [self addSubview:self.label];
     [self.layer addSublayer:self.gradientLayer];
 }
@@ -74,13 +89,13 @@
     
     _gradientColors = gradientColors;
     
-    NSMutableArray *tmp = @[].mutableCopy;
-    
+    NSMutableArray *colors = @[].mutableCopy;
     for (UIColor *color in gradientColors) {
-        [tmp addObject:(id)color.CGColor];
+        [colors addObject:(id)color.CGColor];
     }
     
-    self.gradientLayer.colors = tmp;
+    
+    self.gradientLayer.colors = colors;
     
 }
 
@@ -141,6 +156,7 @@
     }
 }
 
+
 - (void)sizeToFit
 {
     [super sizeToFit];
@@ -149,5 +165,41 @@
     frame.size = self.label.frame.size;
     self.frame = frame;
 }
+
+- (void)setAnimate:(BOOL)animate
+{
+    _animate = animate;
+    
+    if (animate) {
+    
+        [self addLink];
+        
+    }else {
+        [self removeLink];
+    }
+}
+
+- (void)setAnimationDuration:(NSTimeInterval)animationDuration
+{
+    _animationDuration = animationDuration;
+    
+    if (self.isAnimate) {
+        
+        [self addLink];
+    }
+    
+}
+
+- (void)performAnimation
+{
+    CAGradientLayer *layer = self.gradientLayer;
+    NSMutableArray *colorArray = [[layer colors] mutableCopy];
+    UIColor *lastColor = [colorArray lastObject];
+    [colorArray removeLastObject];
+    [colorArray insertObject:lastColor atIndex:0];
+    NSArray *shiftedColors = [NSArray arrayWithArray:colorArray];
+    [layer setColors:shiftedColors];
+}
+
 
 @end

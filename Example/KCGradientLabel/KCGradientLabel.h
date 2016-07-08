@@ -21,6 +21,9 @@ typedef NS_ENUM(NSInteger, KCGradientLabelGradientDirection) {
 
 @property(nonatomic) NSInteger numberOfLines;
 
+@property (nonatomic, assign, getter=isAnimate) BOOL animate;
+
+@property (nonatomic, assign) NSTimeInterval animationDuration;
 
 @property (nonatomic, assign) KCGradientLabelGradientDirection gradientDirection;
 
