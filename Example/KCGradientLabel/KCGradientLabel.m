@@ -1,5 +1,29 @@
 
 #import "KCGradientLabel.h"
+#import <objc/runtime.h>
+
+@implementation CADisplayLink (KCExtension)
+
+static NSString *KCCADisplayLinkBlockKey = @"KCCADisplayLinkBlockKey";
+
++ (void)kc_block:(CADisplayLink *)link {
+    
+    void(^Block)(CADisplayLink *link) = objc_getAssociatedObject(self, (__bridge const void *)(KCCADisplayLinkBlockKey));
+    
+    if (Block) {
+        Block(link);
+    }
+}
+
++ (CADisplayLink *)kc_displayLinkWithBlock:(void(^)(CADisplayLink *link))block
+{
+    objc_setAssociatedObject(self, (__bridge const void *)(KCCADisplayLinkBlockKey), block, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    
+    return [CADisplayLink displayLinkWithTarget:self selector:@selector(kc_block:)];
+}
+
+@end
+
 
 @interface KCGradientLabel () 
 
@@ -12,10 +36,20 @@
 
 @implementation KCGradientLabel
 
+- (void)dealloc
+{
+    [self removeLink];
+}
+
 - (void)addLink
 {
     [self removeLink];
-    self.link = [CADisplayLink displayLinkWithTarget:self selector:@selector(performAnimation)];
+    
+    __weak typeof(self) weakSelf = self;
+    self.link = [CADisplayLink kc_displayLinkWithBlock:^(CADisplayLink *link) {
+        [weakSelf performAnimation];
+    }];
+    
     self.link.frameInterval = self.animationDuration;
     [self.link addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }
@@ -74,8 +108,8 @@
 
 - (CGSize)intrinsicContentSize
 {
-    [self.label sizeToFit];
-    return self.label.frame.size;
+    [self sizeToFit];
+    return self.frame.size;
 }
 
 - (void)layoutSubviews
